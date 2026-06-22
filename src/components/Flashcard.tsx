@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { FlashcardType } from "../types";
 
-export function Flashcard({ card }: { card: FlashcardType }) {
+export function Flashcard({ card, key }: { card: FlashcardType; key?: string | number }) {
   const [isFlipped, setIsFlipped] = useState(false);
 
   return (

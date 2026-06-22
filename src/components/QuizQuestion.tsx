@@ -5,9 +5,13 @@ import { CheckCircle2, XCircle, Lightbulb, GraduationCap } from "lucide-react";
 export function QuizQuestion({
   question,
   index,
+  onAnswer,
+  key,
 }: {
   question: QuizQuestionType;
   index: number;
+  onAnswer?: (isCorrect: boolean) => void;
+  key?: string | number;
 }) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [showHint, setShowHint] = useState(false);
@@ -51,6 +55,9 @@ export function QuizQuestion({
               onClick={() => {
                 if (!hasAnswered) {
                   setSelectedOption(option);
+                  if (onAnswer) {
+                    onAnswer(option === question.correct_answer);
+                  }
                 }
               }}
               className={`w-full p-4 border rounded-xl flex items-center justify-between transition-colors ${optionStyle} ${!hasAnswered ? "active:scale-[0.99]" : ""}`}

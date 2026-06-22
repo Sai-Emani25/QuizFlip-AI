@@ -102,6 +102,56 @@ Operational Parameters:
     }
   });
 
+  app.post("/api/analyze", async (req, res) => {
+    try {
+      const { results } = req.body;
+      
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        return res.status(500).json({ error: "Gemini API key is not configured" });
+      }
+
+      const ai = new GoogleGenAI({ apiKey });
+
+      const schema: Schema = {
+        type: Type.OBJECT,
+        properties: {
+          summary: { type: Type.STRING },
+          strengths: { type: Type.ARRAY, items: { type: Type.STRING } },
+          areas_for_improvement: { type: Type.ARRAY, items: { type: Type.STRING } }
+        },
+        required: ["summary", "strengths", "areas_for_improvement"]
+      };
+
+      const systemInstruction = `You are a pedagogical mentor. Analyze the student's quiz performance and provide brief, encouraging, and constructive feedback. Tell them what they did well and what they need to study more based on the questions they got right and wrong.`;
+      const prompt = `Student performance data: ${JSON.stringify(results)}`;
+
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt,
+        config: {
+          systemInstruction,
+          responseMimeType: "application/json",
+          responseSchema: schema,
+          temperature: 0.2,
+        }
+      });
+
+      const responseText = response.text;
+      
+      if (!responseText) {
+          throw new Error("No response generated");
+      }
+
+      const generatedData = JSON.parse(responseText);
+      
+      res.json({ success: true, data: generatedData });
+    } catch (error: any) {
+      console.error("API /api/analyze Error:", error);
+      res.status(500).json({ error: error.message || "Failed to analyze performance" });
+    }
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({

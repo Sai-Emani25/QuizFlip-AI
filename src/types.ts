@@ -18,3 +18,9 @@ export interface QuizResponse {
   flashcards: FlashcardType[];
   quiz_questions: QuizQuestionType[];
 }
+
+export interface QuizAnalysisResponse {
+  summary: string;
+  strengths: string[];
+  areas_for_improvement: string[];
+}

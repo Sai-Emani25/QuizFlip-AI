@@ -1,7 +1,8 @@
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { Sparkles, FileText, Layers, BrainCircuit, GraduationCap, Github, Upload, Download } from "lucide-react";
-import { Flashcard } from "./components/Flashcard";
+import { FlashcardSet } from "./components/FlashcardSet";
 import { QuizQuestion } from "./components/QuizQuestion";
+import { QuizTest } from "./components/QuizTest";
 import { QuizResponse } from "./types";
 
 export default function App() {
@@ -302,20 +303,14 @@ export default function App() {
         {/* View: Flashcards */}
         {activeTab === "flashcards" && result && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {result.flashcards.map((card) => (
-                  <Flashcard key={card.id} card={card} />
-                ))}
-            </div>
+            <FlashcardSet flashcards={result.flashcards} />
           </div>
         )}
 
         {/* View: Quiz */}
         {activeTab === "quiz" && result && (
           <div className="max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {result.quiz_questions.map((q, idx) => (
-              <QuizQuestion key={q.id} question={q} index={idx} />
-            ))}
+            <QuizTest questions={result.quiz_questions} />
           </div>
         )}
 
