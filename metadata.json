@@ -1,0 +1,6 @@
+{
+  "name": "QuizFlip AI",
+  "description": "Pedagogical intelligence engine that automatically transforms unstructured notes and text into interactive flashcards and Socratic quizzes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
