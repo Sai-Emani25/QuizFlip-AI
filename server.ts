@@ -77,7 +77,7 @@ Operational Parameters:
 3. Distractor Design: For quiz questions, craft highly plausible, adversarial distractors based on common student misconceptions. Avoid lazy, obviously incorrect options.`;
 
       const response = await ai.models.generateContent({
-        model: "gemini-2.5-pro",
+        model: "gemini-2.5-flash",
         contents: text,
         config: {
           systemInstruction,

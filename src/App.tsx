@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Sparkles, FileText, Layers, BrainCircuit, GraduationCap, Github, Upload } from "lucide-react";
+import { Sparkles, FileText, Layers, BrainCircuit, GraduationCap, Github, Upload, Download } from "lucide-react";
 import { Flashcard } from "./components/Flashcard";
 import { QuizQuestion } from "./components/QuizQuestion";
 import { QuizResponse } from "./types";
@@ -81,6 +81,37 @@ export default function App() {
     }
   };
 
+  const exportToCSV = () => {
+    if (!result) return;
+    
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Type,Question/Front,Answer/Back,Options,Hint,Explanation\n";
+    
+    result.flashcards.forEach(card => {
+      const front = card.front.replace(/"/g, '""');
+      const back = card.back.replace(/"/g, '""');
+      csvContent += `"Flashcard","${front}","${back}","","",""\n`;
+    });
+    
+    result.quiz_questions.forEach(q => {
+      const question = q.question.replace(/"/g, '""');
+      const answer = q.correct_answer.replace(/"/g, '""');
+      const options = q.options.join(" | ").replace(/"/g, '""');
+      const hint = q.socratic_hint.replace(/"/g, '""');
+      const explanation = q.explanation.replace(/"/g, '""');
+      
+      csvContent += `"Quiz","${question}","${answer}","${options}","${hint}","${explanation}"\n`;
+    });
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "quizflip_export.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const loadDemoText = () => {
     setInputText(`The process of photosynthesis occurs in two main stages: the light-dependent reactions and the Calvin cycle (light-independent reactions). \n\nDuring the light-dependent reactions, which take place in the thylakoid membrane, chlorophyll absorbs light energy, which excites electrons that are used to generate ATP from ADP and reduce NADP+ to NADPH. Water is split to replace these lost electrons, releasing oxygen as a byproduct.\n\nIn the second stage, the Calvin cycle takes place in the stroma of the chloroplast. Here, ATP and NADPH produced in the light reactions are used to convert CO2 into a simple sugar called G3P (glyceraldehyde-3-phosphate). It takes three turns of the Calvin cycle to produce one net G3P molecule.`);
   };
@@ -118,45 +149,55 @@ export default function App() {
         
         {/* State: Has Result, Tab Navigation */}
         {result && (
-          <div className="flex gap-4 mb-8 pb-4 border-b border-slate-800/60 overflow-x-auto">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-slate-800/60 overflow-x-auto">
+            <div className="flex gap-4">
+              <button
+                onClick={() => setActiveTab("input")}
+                className={`flex items-center gap-2 px-4 py-2 font-medium text-sm rounded-full transition-colors whitespace-nowrap border ${
+                  activeTab === "input"
+                    ? "bg-blue-600 text-white border-blue-500 shadow-[0_0_15px_rgba(37,99,235,0.4)]"
+                    : "bg-slate-900 border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-slate-300"
+                }`}
+              >
+                <FileText className="w-4 h-4" />
+                Source Material
+              </button>
+              <button
+                onClick={() => setActiveTab("flashcards")}
+                className={`flex items-center gap-2 px-4 py-2 font-medium text-sm rounded-full transition-colors whitespace-nowrap border ${
+                  activeTab === "flashcards"
+                    ? "bg-blue-600 text-white border-blue-500 shadow-[0_0_15px_rgba(37,99,235,0.4)]"
+                    : "bg-slate-900 border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-slate-300"
+                }`}
+              >
+                <Layers className="w-4 h-4" />
+                Practice Flashcards
+                <span className="ml-1 bg-white/20 px-2 py-0.5 rounded-full text-xs">
+                  {result.flashcards.length}
+                </span>
+              </button>
+              <button
+                onClick={() => setActiveTab("quiz")}
+                className={`flex items-center gap-2 px-4 py-2 font-medium text-sm rounded-full transition-colors whitespace-nowrap border ${
+                  activeTab === "quiz"
+                    ? "bg-blue-600 text-white border-blue-500 shadow-[0_0_15px_rgba(37,99,235,0.4)]"
+                    : "bg-slate-900 border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-slate-300"
+                }`}
+              >
+                <Sparkles className="w-4 h-4" />
+                Socratic Quiz
+                <span className="ml-1 bg-white/20 px-2 py-0.5 rounded-full text-xs">
+                  {result.quiz_questions.length}
+                </span>
+              </button>
+            </div>
+            
             <button
-              onClick={() => setActiveTab("input")}
-              className={`flex items-center gap-2 px-4 py-2 font-medium text-sm rounded-full transition-colors whitespace-nowrap border ${
-                activeTab === "input"
-                  ? "bg-blue-600 text-white border-blue-500 shadow-[0_0_15px_rgba(37,99,235,0.4)]"
-                  : "bg-slate-900 border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-slate-300"
-              }`}
+              onClick={exportToCSV}
+              className="flex items-center justify-center gap-2 px-4 py-2 font-bold text-sm rounded-full transition-colors whitespace-nowrap border bg-transparent border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.15)]"
             >
-              <FileText className="w-4 h-4" />
-              Source Material
-            </button>
-            <button
-              onClick={() => setActiveTab("flashcards")}
-              className={`flex items-center gap-2 px-4 py-2 font-medium text-sm rounded-full transition-colors whitespace-nowrap border ${
-                activeTab === "flashcards"
-                  ? "bg-blue-600 text-white border-blue-500 shadow-[0_0_15px_rgba(37,99,235,0.4)]"
-                  : "bg-slate-900 border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-slate-300"
-              }`}
-            >
-              <Layers className="w-4 h-4" />
-              Practice Flashcards
-              <span className="ml-1 bg-white/20 px-2 py-0.5 rounded-full text-xs">
-                {result.flashcards.length}
-              </span>
-            </button>
-            <button
-              onClick={() => setActiveTab("quiz")}
-              className={`flex items-center gap-2 px-4 py-2 font-medium text-sm rounded-full transition-colors whitespace-nowrap border ${
-                activeTab === "quiz"
-                  ? "bg-blue-600 text-white border-blue-500 shadow-[0_0_15px_rgba(37,99,235,0.4)]"
-                  : "bg-slate-900 border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-slate-300"
-              }`}
-            >
-              <Sparkles className="w-4 h-4" />
-              Socratic Quiz
-              <span className="ml-1 bg-white/20 px-2 py-0.5 rounded-full text-xs">
-                {result.quiz_questions.length}
-              </span>
+              <Download className="w-4 h-4" />
+              Export CSV
             </button>
           </div>
         )}
